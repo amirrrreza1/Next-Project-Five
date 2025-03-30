@@ -9,13 +9,24 @@ interface Post {
   body: string;
 }
 
-const fetcher = async (url: string) => {
-  const res = await fetch(url);
-  const data: Post = await res.json();
-  if (!res.ok) {
-    throw new Error("Failed to fetch post");
+const fetcher = async (url: string, method = "GET") => {
+  const timestamp = new Date().toISOString();
+
+  try {
+    const res = await fetch(url);
+    const success = res.ok;
+
+    await fetch("/api/logApi", {
+      method: "POST",
+      body: JSON.stringify({ endpoint: url, method, success, timestamp }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!success) throw new Error(`Failed to fetch: ${res.statusText}`);
+    return res.json();
+  } catch (err: any) {
+    throw err;
   }
-  return data;
 };
 
 const ShowPost = () => {

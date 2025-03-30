@@ -14,12 +14,25 @@ interface Product {
   rating: { rate: number; count: number };
 }
 
-const fetcher = async (url: string) => {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Failed to fetch");
-  return await res.json();
-};
+const fetcher = async (url: string, method = "GET") => {
+  const timestamp = new Date().toISOString();
 
+  try {
+    const res = await fetch(url);
+    const success = res.ok;
+
+    await fetch("/api/logApi", {
+      method: "POST",
+      body: JSON.stringify({ endpoint: url, method, success, timestamp }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!success) throw new Error(`Failed to fetch: ${res.statusText}`);
+    return res.json();
+  } catch (err: any) {
+    throw err;
+  }
+};
 export default function ProductsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -83,8 +96,7 @@ export default function ProductsPage() {
     );
   };
 
-  if (error || categoryError)
-    return notFound();
+  if (error || categoryError) return notFound();
   if (!products || !categories) return <p>Loading...</p>;
 
   return (

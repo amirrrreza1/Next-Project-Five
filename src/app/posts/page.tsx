@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,19 +10,31 @@ interface Post {
   body: string;
 }
 
-const fetchPosts = async (url: string) => {
-  const res = await fetch(url);
-  const data: Post[] = await res.json();
-  if (!res.ok) {
-    throw new Error("Failed to fetch posts");
+const fetcher = async (url: string, method = "GET") => {
+  const timestamp = new Date().toISOString();
+
+  try {
+    const res = await fetch(url);
+    const success = res.ok;
+
+    await fetch("/api/logApi", {
+      method: "POST",
+      body: JSON.stringify({ endpoint: url, method, success, timestamp }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!success) throw new Error(`Failed to fetch: ${res.statusText}`);
+    return res.json();
+  } catch (err: any) {
+    throw err;
   }
-  return data;
 };
+
 
 const PostsPage = () => {
   const { data: posts, error } = useSWR<Post[]>(
     "https://jsonplaceholder.typicode.com/posts",
-    fetchPosts
+    fetcher
   );
 
   if (error) return notFound();
