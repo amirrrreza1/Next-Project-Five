@@ -97,7 +97,7 @@ export default function ProductsPage() {
   };
 
   if (error || categoryError) return notFound();
-  if (!products || !categories) return <p>Loading...</p>;
+  if (!products || !categories) return <p className="LoadingScreen">Loading...</p>;
 
   return (
     <div className="flex">
