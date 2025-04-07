@@ -1,4 +1,22 @@
 const HomePage = () => {
+  const url = new URL("https://example.com/page?name=ali&age=25");
+
+  console.log(url.href); // کل آدرس
+  console.log(url.protocol); // https:
+  console.log(url.hostname); // example.com
+  console.log(url.pathname); // /page
+  console.log(url.search); // ?name=ali&age=25
+  console.log(url.searchParams.get("age")); // ali
+
+  console.log(url.searchParams.get("name")); // ali
+  console.log(url.searchParams.get("age")); // 25
+
+  url.searchParams.set("age", "30");
+  url.searchParams.append("gender", "male");
+  url.searchParams.delete("name");
+
+  console.log(url.toString());
+
   return (
     <>
       <div className="w-full max-w-[800px] m-auto flex justify-center items-center">
